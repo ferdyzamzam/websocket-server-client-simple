@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat WebSocket</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      background: #f4f4f4;
+    }
+
+    .chat-container {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      background: #fff;
+    }
+
+    .message {
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 4px;
+    }
+
+    .message.you {
+      background: #d4f1d4;
+      align-self: flex-end;
+    }
+
+    .message.other {
+      background: #d4e1f5;
+    }
+
+    form {
+      margin-top: 10px;
+    }
+
+    input {
+      width: 80%;
+      padding: 10px;
+      margin-right: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 10px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Test Chat WebSocket simple</h1>
+  <div class="chat-container" id="chat"></div>
+  <form id="chat-form">
+    <input type="text" id="message" placeholder="Tulis pesan..." required />
+    <button type="submit">Kirim</button>
+  </form>
+
+  <script>
+    const chatContainer = document.getElementById('chat');
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('message');
+
+    const ws = new WebSocket('ws://localhost:8080');
+    const addMessage = (message, className = 'other') => {
+      const div = document.createElement('div');
+      div.classList.add('message', className);
+      div.textContent = message;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    };
+
+    ws.onopen = () => {
+      console.log('Terhubung ke server chat');
+    };
+
+    ws.onmessage = (event) => {
+      addMessage(event.data, 'other');
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const message = input.value;
+
+      ws.send(message);
+      addMessage(message, 'you');
+      input.value = '';
+    });
+  </script>
+</body>
+
+</html>
